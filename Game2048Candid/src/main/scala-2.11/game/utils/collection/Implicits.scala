@@ -9,8 +9,8 @@ object Implicits {
     def getRandElement = arr(util.Random.nextInt(arr.length))
   }
 
-  implicit class Row2048(arr:Array[Int]) {
-    def cleanAndPad: Array[Int] = arr.filterNot(_ == 0).padTo(4, 0)
+  implicit class Row2048(arr: Row) {
+    def cleanAndPad: Row = arr.filterNot(_ == 0).padTo(4, 0)
   }
 
   implicit class Matrix2048(matrix:Matrix) {
