@@ -3,26 +3,15 @@ package game
 import game.utils.collection.Implicits._
 import io.OutputControl.showGrid
 
-class Grid {
+class Grid(val gridSize: Int) {
   var score:Int    = 0
   val tiles:Matrix = emptyGrid
 
-  def emptyGrid:Matrix  = Array.fill(4)(Array.fill(4)(0))
+  def emptyGrid:Matrix  = Array.fill(gridSize)(Array.fill(gridSize)(0))
 
   def isFull:Boolean    = !tiles.flatten.contains(0)
   def isLocked:Boolean  = !(tiles.isMergeable || tiles.transpose.isMergeable)
   def isVictory:Boolean = tiles.flatten.contains(2048)
-
-  def updateGridFrom(matrix:Matrix):Unit =
-    matrix.zipWithIndex.foreach{ case (row, index) => tiles.update(index, row) }
-
-  def addTile:Grid = if (isFull) this else {
-    val (x, y): (Int, Int) = tiles.getFreeCells.getRandElement
-    val newElem: Int       = Array(2,2,2,2,2,4).getRandElement
-
-    tiles.update(x, tiles(x).updated(y, newElem))
-    this
-  }
 
   def updateScoreAndTiles(tile: Int, tiles: List[Int]): List[Int] = {
     score  += tile*2
@@ -51,21 +40,31 @@ class Grid {
 
   def mergeTiles(grid:Matrix):Matrix = grid map mergeLeft
 
-  def move(direction:String): Unit = if (!isLocked) {
-    val newCells = direction match {
+  def move(direction:String): Unit =
+    if (!isLocked) Some(direction match {
       case "left"  => mergeTiles(tiles)
       case "right" => mergeTiles(tiles.map(_.reverse)).map(_.reverse)
       case "down"  => mergeTiles(tiles.reverse.transpose).transpose.reverse
       case "up"    => mergeTiles(tiles.transpose.reverse).reverse.transpose
-    }
-    if (!(newCells isIdentical tiles)) {
-      updateGridFrom(newCells)
-      updateGridWithNewTile()
-    }
+    }).filterNot(_ isIdentical tiles)
+      .foreach{ newTiles =>
+        updateGridFrom(newTiles)
+        updateGridWithNewTile()
+      }
+
+  def addTile:Grid = if (isFull) this else {
+    val (x, y): (Int, Int) = tiles.getFreeCells.getRandElement
+    val newElem: Int       = Array(2,2,2,2,2,4).getRandElement
+
+    tiles.update(x, tiles(x).updated(y, newElem))
+    this
   }
 
+  def updateGridFrom(matrix:Matrix):Unit =
+    matrix.zipWithIndex.foreach{ case (row, index) => tiles.update(index, row) }
+
   def updateGridWithNewTile():Unit = {
-    showGrid(this)   ; addTile
+    showGrid(this)   ; this.addTile
     Thread.sleep(80) ; showGrid(this)
   }
 

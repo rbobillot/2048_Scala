@@ -15,11 +15,10 @@ object Implicits {
   }
 
   implicit class Matrix2048(matrix:Matrix) {
-    def getFreeCells:Coords =
-      matrix.flatten
-        .zipWithIndex
-        .filter(_._1 == 0)
-        .map{case (x,y) => y / 4 -> y % 4}
+    def getFreeCells:Coords = for {
+      (_,x) <- matrix.zipWithIndex
+      (_,y) <- matrix(x).zipWithIndex if (matrix(x)(y) == 0)
+    } yield (x,y)
 
     def isMergeable =
       matrix.flatten.contains(0) ||
@@ -34,5 +33,7 @@ object Implicits {
 
       check(zip1) && check(zip2)
     }
+
+    def notIdentical(grid: Matrix) = ! isIdentical(grid)
   }
 }

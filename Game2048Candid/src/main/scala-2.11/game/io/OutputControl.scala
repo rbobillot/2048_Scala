@@ -34,11 +34,11 @@ object OutputControl {
   }
 
   def printAsciiGrid(grid:Grid, row:Int = 0, index:Int = 1):Unit =
-    if (0 == index % 4) {
-      println(if (row != 1) "" else (" "*38) + "\u001b[96mScore\u001b[0m: " + grid.score)
+    if (0 == index % grid.gridSize) {
+      println(if (row != 1) "" else (" "*grid.gridSize*10) + "\u001b[96mScore\u001b[0m: " + grid.score)
       printAsciiGrid(grid, row+1, index+1)
     }
-    else if (row < 4) {
+    else if (row < grid.gridSize) {
       println(grid.tiles(row).map(num => colorCell(num, index)).mkString("  "))
       printAsciiGrid(grid, row, index+1)
     }
