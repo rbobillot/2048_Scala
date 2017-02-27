@@ -34,8 +34,8 @@ object OutputControl {
   }
 
   def printAsciiGrid(grid:Grid, row:Int = 0, index:Int = 1):Unit =
-    if (0 == index % grid.gridSize) {
-      println(if (row != 1) "" else (" "*grid.gridSize*10) + "\u001b[96mScore\u001b[0m: " + grid.score)
+    if (0 == index % 4) {
+      println()
       printAsciiGrid(grid, row+1, index+1)
     }
     else if (row < grid.gridSize) {
@@ -43,15 +43,16 @@ object OutputControl {
       printAsciiGrid(grid, row, index+1)
     }
 
-  def printKeyInformations():Unit = {
+  def printKeyInformations(grid: Grid):Unit = {
     println(" "*3 + "Press <ENTER>  to exit game")
     println(" "*3 + "Press <ESCAPE> to exit game\n")
     println(" "*3 + "Press <R> to reset game\n")
+    println(" "*3 + "\u001b[96mScore\u001b[0m: " + grid.score + "\n")
   }
 
   def showGrid(grid:Grid):Unit = {
     println("\u001b[1J\u001b[1;1H")
-    printKeyInformations()
+    printKeyInformations(grid)
     printAsciiGrid(grid)
     if (grid.isLocked) stopGame("lose")
     if (grid.isVictory) stopGame("win")
