@@ -10,7 +10,8 @@ object Implicits {
   }
 
   implicit class Row2048(arr: Row) {
-    def cleanAndPad: Row = arr.filterNot(_ == 0).padTo(4, 0)
+    def cleanAndPad(implicit rowSize: Int = 4): Row =
+      arr.filterNot(_ == 0).padTo(rowSize, 0)
   }
 
   implicit class Matrix2048(matrix:Matrix) {
