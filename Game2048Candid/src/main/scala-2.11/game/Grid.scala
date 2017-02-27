@@ -24,13 +24,30 @@ class Grid {
     this
   }
 
-  def mergeLeft(row:Row):Row = (row.cleanAndPad match {
+  def updateScoreAndTiles(tile: Int, tiles: List[Int]): List[Int] = {
+    score  += tile*2
+    tile*2 :: tiles
+  }
+
+  def mergeLeftDynamicLength(rw:Row): Row =
+    rw.foldLeft(0 :: Nil){ (acc, e) => acc.head match {
+      case `e` => 0 :: updateScoreAndTiles(e, acc drop 1)
+      case  _  => e :: acc
+    }}.reverse.toArray
+
+  def mergeLeftBasicLength(row:Row): Row = row match {
     case Array(a,b,c,d) if a == b && c == d => score += a+b+c+d ; Array(a+b,c+d,0,0)
     case Array(a,b,c,d) if a == b           => score += a+b     ; Array(a+b,c,d,0)
     case Array(a,b,c,d) if b == c           => score += b+c     ; Array(a,b+c,d,0)
     case Array(a,b,c,d) if c == d           => score += c+d     ; Array(a,b,c+d,0)
     case _                                  => row
-  }).cleanAndPad
+  }
+
+  def mergeLeft(row:Row)(implicit size: Int = row.size): Row =
+    (size match {
+      case 4 => mergeLeftBasicLength(row.cleanAndPad)
+      case _ => mergeLeftDynamicLength(row.cleanAndPad)
+    }).cleanAndPad
 
   def mergeTiles(grid:Matrix):Matrix = grid map mergeLeft
 
